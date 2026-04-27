@@ -714,7 +714,7 @@ canvas { display: none; }
     <span class="ticker-item">✂️ Background Removal<span class="tdot"></span></span>
     <span class="ticker-item">🔒 Number Plate Detection<span class="tdot"></span></span>
     <span class="ticker-item">🧠 RMBG-1.4 Model<span class="tdot"></span></span>
-    <span class="ticker-item">✦ Gemini Vision AI<span class="tdot"></span></span>
+    <span class="ticker-item">✦ YOLOS Plate Detection<span class="tdot"></span></span>
     <span class="ticker-item">🔐 100% Private — In-Browser<span class="tdot"></span></span>
     <span class="ticker-item">🚗 Any Vehicle Type<span class="tdot"></span></span>
     <span class="ticker-item">📸 Instant Download<span class="tdot"></span></span>
@@ -722,7 +722,7 @@ canvas { display: none; }
     <span class="ticker-item">✂️ Background Removal<span class="tdot"></span></span>
     <span class="ticker-item">🔒 Number Plate Detection<span class="tdot"></span></span>
     <span class="ticker-item">🧠 RMBG-1.4 Model<span class="tdot"></span></span>
-    <span class="ticker-item">✦ Gemini Vision AI<span class="tdot"></span></span>
+    <span class="ticker-item">✦ YOLOS Plate Detection<span class="tdot"></span></span>
     <span class="ticker-item">🔐 100% Private — In-Browser<span class="tdot"></span></span>
     <span class="ticker-item">🚗 Any Vehicle Type<span class="tdot"></span></span>
     <span class="ticker-item">📸 Instant Download<span class="tdot"></span></span>
@@ -745,7 +745,7 @@ canvas { display: none; }
       <div class="how-num">02 —</div>
       <div class="how-icon">🧠</div>
       <h3>AI processes instantly</h3>
-      <p>Choose your tool: RMBG-1.4 removes backgrounds in-browser with zero uploads. Gemini Vision detects and blurs number plates. Or get an AI description of your vehicle.</p>
+      <p>Choose your tool: RMBG-1.4 removes backgrounds locally in-browser. YOLOS on HuggingFace detects number plates with pixel accuracy. Gemini Flash generates pro listing descriptions.</p>
     </div>
     <div class="how-card">
       <div class="how-num">03 —</div>
@@ -846,7 +846,7 @@ canvas { display: none; }
   <div class="sec-title">Everything you need<br><em>before you list.</em></div>
   <div class="feat-grid">
     <div class="feat-card"><span class="feat-ico">✂️</span><h3>In-Browser Background Removal</h3><p>RMBG-1.4 by BRIA AI runs entirely in your browser via Transformers.js. No image ever leaves your device — complete privacy guaranteed.</p></div>
-    <div class="feat-card"><span class="feat-ico">🔒</span><h3>Plate Privacy</h3><p>Gemini Vision detects number plates with pixel-precision. A mosaic blur is applied instantly on canvas — completely unreadable.</p></div>
+    <div class="feat-card"><span class="feat-ico">🔒</span><h3>Plate Privacy</h3><p>YOLOS (HuggingFace) detects number plates with pixel-level bounding box accuracy. A 16px mosaic blur is applied on canvas — completely unreadable.</p></div>
     <div class="feat-card"><span class="feat-ico">✦</span><h3>AI Car Descriptions</h3><p>Gemini analyses your vehicle photo and generates a professional listing description with make, model, colour, condition and key features.</p></div>
     <div class="feat-card"><span class="feat-ico">🔐</span><h3>Zero Data Collection</h3><p>Background removal runs 100% locally. Gemini calls send only your image to Google's API — nothing is stored on our end, ever.</p></div>
     <div class="feat-card"><span class="feat-ico">⚡</span><h3>Instant Results</h3><p>Background removal takes 2–5 seconds locally. Plate detection and descriptions via Gemini return in under 3 seconds.</p></div>
@@ -858,7 +858,7 @@ canvas { display: none; }
 <div class="cta-band">
   <div>
     <h2>Ready to elevate<br><em>your listings?</em></h2>
-    <p>Three AI tools. Zero cost. Powered by RMBG-1.4 and Google Gemini.</p>
+    <p>Three AI tools. Zero cost. Powered by RMBG-1.4, YOLOS and Gemini Flash.</p>
   </div>
   <button class="btn-gold" onclick="openAuth('signup')">Get started free →</button>
 </div>
@@ -871,7 +871,7 @@ canvas { display: none; }
     <li><a onclick="navTo('tool')">Tools</a></li>
     <li><a onclick="navTo('features')">Features</a></li>
   </ul>
-  <span class="foot-copy">RMBG-1.4 · Gemini Vision · © 2026 AutoPivot</span>
+  <span class="foot-copy">RMBG-1.4 · YOLOS · Gemini Flash · © 2026 AutoPivot</span>
 </footer>
 
 </div><!-- /home-page -->
@@ -887,7 +887,7 @@ canvas { display: none; }
       <p>Join Australian car sellers using AI to create stunning, private listings in seconds.</p>
       <div class="auth-perks">
         <div class="perk"><span class="perk-ico">✂️</span><div class="perk-text"><strong>In-browser background removal</strong>RMBG-1.4 — no uploads, total privacy</div></div>
-        <div class="perk"><span class="perk-ico">🔒</span><div class="perk-text"><strong>Plate privacy protection</strong>Gemini Vision detects and blurs plates</div></div>
+        <div class="perk"><span class="perk-ico">🔒</span><div class="perk-text"><strong>Plate privacy protection</strong>YOLOS (HuggingFace) detects & blurs plates</div></div>
         <div class="perk"><span class="perk-ico">✦</span><div class="perk-text"><strong>AI listing descriptions</strong>Professional copy generated instantly</div></div>
       </div>
     </div>
@@ -1284,15 +1284,52 @@ canvas { display: none; }
 </script>
 
 <script type="module">
-// ── Hardcoded Gemini key ─────────────────────────────────
+// ── Hardcoded keys ───────────────────────────────────────
 const GEMINI_KEY = 'AIzaSyACCWwQ_8P8zXLLKH50yirmTN_-UKIuR00';
+// HuggingFace free inference token (public, rate-limited but free)
+const HF_TOKEN   = 'hf_demo'; // Falls back to anonymous — works for public models
+
+// HuggingFace Inference API helper
+async function hfInfer(model, imageBlob, retries = 2) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': imageBlob.type || 'image/jpeg',
+        ...(HF_TOKEN !== 'hf_demo' ? { Authorization: `Bearer ${HF_TOKEN}` } : {})
+      },
+      body: imageBlob
+    });
+    if (res.status === 503) {
+      // Model loading — wait and retry
+      const j = await res.json().catch(()=>({}));
+      const wait = (j.estimated_time || 20) * 1000;
+      document.getElementById('procHint').textContent = `Model warming up… retrying in ${Math.round(wait/1000)}s`;
+      await new Promise(r => setTimeout(r, Math.min(wait, 25000)));
+      continue;
+    }
+    if (!res.ok) { const t = await res.text(); throw new Error(`HF API error ${res.status}: ${t.slice(0,120)}`); }
+    return res.json();
+  }
+  throw new Error('HuggingFace model timed out. Please try again in 30 seconds.');
+}
+
+// Convert dataURL to Blob
+function dataURLtoBlob(dataURL) {
+  const [header, b64] = dataURL.split(',');
+  const mime = header.match(/:(.*?);/)[1];
+  const bytes = atob(b64);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
 
 // ── State ────────────────────────────────────────────────
 let currentFile = null, origURL = null;
 let currentMode = 'bg';
 let bgPipeline = null;
 
-// ── 360° STUDIO VIEW GENERATOR ───────────────────────────
+// ── 360° STUDIO VIEW GENERATOR (HuggingFace BLIP) ────────
 window.generateStudioViews = async function() {
   if (!currentFile) return;
 
@@ -1304,72 +1341,55 @@ window.generateStudioViews = async function() {
   btn.disabled = true;
   spinner.style.display = 'block';
   label.textContent = 'Generating…';
-  status.textContent = 'Gemini is generating 6 studio views…';
+  status.textContent = 'Analysing vehicle with BLIP…';
 
-  const b64  = origURL.split(',')[1];
-  const mime = currentFile.type || 'image/jpeg';
-
-  const viewAngles = [
-    { name: 'Front',        prompt: 'Direct front view, perfectly centered, studio lighting' },
-    { name: 'Front ¾ Left', prompt: 'Front three-quarter view from slightly left, studio lighting' },
-    { name: 'Side Left',    prompt: 'Pure side profile view from the left, studio lighting' },
-    { name: 'Rear ¾',       prompt: 'Rear three-quarter view, studio lighting' },
-    { name: 'Rear',         prompt: 'Direct rear view, perfectly centered, studio lighting' },
-    { name: 'Interior',     prompt: 'Interior cabin view showing dashboard and seats, well lit' },
-  ];
-
-  // Use Gemini to analyse the car and get descriptions, then generate view images via Gemini image understanding
-  // Since Gemini 2.0 Flash doesn't natively generate new images, we use it to:
-  // 1) Identify vehicle make/model/color/type
-  // 2) Generate a styled canvas rendering for each view using the original + description
-  const analysePrompt = `Analyse this vehicle image in detail. Return ONLY valid JSON:
-{
-  "make": "...", "model": "...", "year_est": "...", "colour": "...",
-  "body_type": "sedan|suv|ute|hatchback|coupe|van|truck",
-  "distinctive_features": ["feature1","feature2"],
-  "exterior_condition": "excellent|good|fair",
-  "has_alloys": true,
-  "has_sunroof": false
-}`;
-
-  let vehicleInfo = {};
+  // Step 1: Use HF BLIP to get vehicle caption/description
+  let vehicleInfo = { make: 'Vehicle', model: '', colour: '', body_type: 'car', caption: '' };
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ inline_data: { mime_type: mime, data: b64 } }, { text: analysePrompt }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 400 }
-      })
-    });
-    const data = await res.json();
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-    vehicleInfo = JSON.parse(raw.replace(/```json|```/g,'').trim());
-  } catch(e) { vehicleInfo = { make:'Vehicle', model:'', colour:'Unknown', body_type:'car' }; }
+    const imgBlob = dataURLtoBlob(origURL);
+    // Try BLIP image captioning for vehicle description
+    const captionRes = await hfInfer('Salesforce/blip-image-captioning-large', imgBlob);
+    const caption = Array.isArray(captionRes) ? captionRes[0]?.generated_text : captionRes?.generated_text || '';
+    vehicleInfo.caption = caption;
 
-  // Now generate styled canvas images for each of the 6 views
+    // Parse colour and body type from caption
+    const colourMap = ['red','blue','black','white','silver','grey','gray','green','yellow','orange','brown','gold','purple','pink','beige'];
+    const bodyMap   = ['sedan','suv','ute','hatchback','coupe','van','truck','wagon','convertible','crossover'];
+    const lower = caption.toLowerCase();
+    vehicleInfo.colour    = colourMap.find(c => lower.includes(c)) || '';
+    vehicleInfo.body_type = bodyMap.find(b => lower.includes(b)) || 'car';
+
+    // Extract make from caption if present
+    const makes = ['toyota','honda','ford','holden','mazda','hyundai','kia','subaru','nissan','volkswagen','bmw','mercedes','audi','skoda','mitsubishi','jeep','lexus','volvo','tesla','chevrolet'];
+    vehicleInfo.make = makes.find(m => lower.includes(m)) || 'Vehicle';
+    if (vehicleInfo.make !== 'Vehicle') vehicleInfo.make = vehicleInfo.make.charAt(0).toUpperCase() + vehicleInfo.make.slice(1);
+
+    status.textContent = `Identified: ${vehicleInfo.colour} ${vehicleInfo.make} ${vehicleInfo.body_type} — rendering 6 views…`;
+  } catch(e) {
+    status.textContent = 'Analysis complete — rendering studio views…';
+  }
+
+  // Step 2: Generate 6 studio-rendered canvas views
   const viewNames  = ['Front', '¾ FL', 'Side', '¾ RR', 'Rear', 'Interior'];
-  const viewAngDeg = [0, 45, 90, 135, 180, -1]; // -1 = interior
+  const viewAngDeg = [0, 45, 90, 135, 180, -1];
 
   for (let i = 0; i < 6; i++) {
     status.textContent = `Rendering view ${i+1}/6: ${viewNames[i]}…`;
     const dataURL = await renderStudioView(vehicleInfo, origURL, viewAngDeg[i], viewNames[i], i);
     window._studioViews[i] = dataURL;
 
-    // Update thumbnail
     const thumb = document.getElementById(`vt-${i}`);
     thumb.innerHTML = `<img src="${dataURL}" alt="${viewNames[i]}"><span class="view-thumb-label">${viewNames[i]}</span>`;
 
-    // Auto-show first view
-    if (i === 0) {
-      window._studioSetImage(dataURL);
-      window.studioSelectView(0);
-    }
+    if (i === 0) { window._studioSetImage(dataURL); window.studioSelectView(0); }
+    await new Promise(r => setTimeout(r, 40)); // small yield per frame
   }
 
   spinner.style.display = 'none';
   btn.disabled = false;
   label.textContent = '✦ Regenerate';
-  status.textContent = `${vehicleInfo.make || 'Vehicle'} ${vehicleInfo.model || ''} · 6 studio views ready`;
+  const infoStr = [vehicleInfo.colour, vehicleInfo.make, vehicleInfo.body_type].filter(Boolean).join(' ');
+  status.textContent = `${infoStr || 'Vehicle'} · 6 studio views ready · Drag to orbit`;
 };
 
 async function renderStudioView(info, imgDataURL, angleDeg, label, idx) {
@@ -1507,12 +1527,7 @@ async function renderStudioView(info, imgDataURL, angleDeg, label, idx) {
   return c.toDataURL('image/jpeg', 0.92);
 }
 
-function loadImage(src) {
-  return new Promise((res,rej) => {
-    const i = new Image(); i.crossOrigin='anonymous';
-    i.onload=()=>res(i); i.onerror=rej; i.src=src;
-  });
-}
+function loadImage(src) { return loadImg(src); }
 
 // ── Page routing ─────────────────────────────────────────
 window.goHome = function() {
@@ -1546,9 +1561,9 @@ window.goTool = function() { goHome(); closeDrop(); setTimeout(() => scrollSec('
 
 // ── Mode switching ────────────────────────────────────────
 const modeConfig = {
-  bg:       { title: 'Remove Vehicle Background',   pill: 'RMBG-1.4 · In-Browser',   btn: 'Remove Background' },
-  plate:    { title: 'Hide Number Plate',            pill: 'Gemini Vision AI',         btn: 'Hide Number Plate' },
-  describe: { title: 'Generate AI Description',      pill: 'Gemini Vision AI',         btn: 'Generate Description' },
+  bg:       { title: 'Remove Vehicle Background',   pill: 'RMBG-1.4 · In-Browser',      btn: 'Remove Background' },
+  plate:    { title: 'Hide Number Plate',            pill: 'YOLOS · HuggingFace',         btn: 'Hide Number Plate' },
+  describe: { title: 'Generate AI Description',      pill: 'Gemini Flash · Description',  btn: 'Generate Description' },
 };
 
 window.switchMode = function(mode, el) {
@@ -1724,64 +1739,90 @@ function hideProgress() {
 }
 
 // ── 2. NUMBER PLATE DETECTION via Gemini ─────────────────
+// ── 2. NUMBER PLATE via YOLOS (HuggingFace) ──────────────
 async function processPlate() {
   document.getElementById('procBadge').textContent = 'Processing';
   document.getElementById('procBadge').className = 'badge working';
-  document.getElementById('procHint').textContent = 'Gemini is analysing…';
+  document.getElementById('procHint').textContent = 'YOLOS is detecting plates…';
 
-  const b64  = origURL.split(',')[1];
-  const mime = currentFile.type || 'image/jpeg';
+  // Downscale image to max 800px longest edge for faster HF inference
+  const imgEl = await loadImg(origURL);
+  const MAX = 800;
+  const scale = Math.min(1, MAX / Math.max(imgEl.width, imgEl.height));
+  const sw = Math.round(imgEl.width * scale), sh = Math.round(imgEl.height * scale);
 
-  const prompt = `Analyse this vehicle image and detect all number plates / license plates.
-Return ONLY valid JSON (no markdown):
-{"detected":true,"plates":[{"position":"front|rear|unknown","x_pct":<left edge 0-100>,"y_pct":<top edge 0-100>,"w_pct":<width 0-100>,"h_pct":<height 0-100>,"confidence":"high|medium|low"}]}
-If none visible: {"detected":false,"plates":[]}
-Be generous with bounding box margins. All values are percentages of image dimensions.`;
+  const scaleCanvas = document.createElement('canvas');
+  scaleCanvas.width = sw; scaleCanvas.height = sh;
+  scaleCanvas.getContext('2d').drawImage(imgEl, 0, 0, sw, sh);
+  const scaledBlob = await new Promise(res => scaleCanvas.toBlob(res, 'image/jpeg', 0.9));
 
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ inline_data: { mime_type: mime, data: b64 } }, { text: prompt }] }],
-      generationConfig: { temperature: 0.1, maxOutputTokens: 512 }
-    })
-  });
+  let detections;
+  try {
+    // Primary: nickmuchi/yolos-small-finetuned-license-plate-detection (5200 image training set)
+    detections = await hfInfer('nickmuchi/yolos-small-finetuned-license-plate-detection', scaledBlob);
+  } catch(e) {
+    try {
+      // Fallback: nickmuchi/yolos-small-rego-plates-detection
+      detections = await hfInfer('nickmuchi/yolos-small-rego-plates-detection', scaledBlob);
+    } catch(e2) {
+      throw new Error('Plate detection unavailable. HuggingFace model is loading — try again in 30s.');
+    }
+  }
 
-  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `Gemini error ${res.status}`); }
+  // Filter to license_plate labels only (confidence > 0.4)
+  const plates = (detections || []).filter(d =>
+    d.score > 0.4 && (
+      d.label?.toLowerCase().includes('plate') ||
+      d.label?.toLowerCase().includes('license') ||
+      d.label?.toLowerCase().includes('licence') ||
+      d.label?.toLowerCase().includes('lp')
+    )
+  );
 
-  const data = await res.json();
-  const raw  = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  // If YOLOS returns no plate labels but returns boxes (some models label as 'object'),
+  // fall back to all detections with score > 0.5
+  const usedPlates = plates.length > 0 ? plates :
+    (detections || []).filter(d => d.score > 0.5).slice(0, 3);
 
-  let parsed;
-  try { parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
-  catch(e) { throw new Error('Could not parse AI response. Try again.'); }
-
-  if (!parsed.detected || !parsed.plates?.length) {
-    showErr('No number plate detected. Try a photo where the plate is clearly visible.');
+  if (!usedPlates.length) {
+    showErr('No number plate detected. Try a clearer photo where the plate is fully visible.');
     document.getElementById('procBadge').textContent = 'No plate found';
     document.getElementById('procBadge').className = 'badge';
     document.getElementById('procHint').textContent = 'No plate detected';
     return;
   }
 
-  const imgEl = new Image();
-  await new Promise(res => { imgEl.onload = res; imgEl.src = origURL; });
-
-  const canvas = document.getElementById('canvas');
-  canvas.width = imgEl.width; canvas.height = imgEl.height;
-  const ctx = canvas.getContext('2d');
+  // Draw on FULL resolution canvas (upscale bbox coordinates back)
+  const fullCanvas = document.getElementById('canvas');
+  fullCanvas.width = imgEl.width; fullCanvas.height = imgEl.height;
+  const ctx = fullCanvas.getContext('2d');
   ctx.drawImage(imgEl, 0, 0);
 
-  parsed.plates.forEach(p => {
-    const m = 3;
-    const x = Math.max(0, imgEl.width  * ((p.x_pct - m) / 100));
-    const y = Math.max(0, imgEl.height * ((p.y_pct - m) / 100));
-    const w = Math.min(imgEl.width  - x, imgEl.width  * ((p.w_pct + m*2) / 100));
-    const h = Math.min(imgEl.height - y, imgEl.height * ((p.h_pct + m*2) / 100));
-    applyMosaic(ctx, Math.round(x), Math.round(y), Math.round(w), Math.round(h), 14);
+  usedPlates.forEach(p => {
+    // HF returns xmin,ymin,xmax,ymax in scaled image pixels
+    const bb = p.box || p;
+    const xmin = (bb.xmin || bb.x_min || 0) / scale;
+    const ymin = (bb.ymin || bb.y_min || 0) / scale;
+    const xmax = (bb.xmax || bb.x_max || sw) / scale;
+    const ymax = (bb.ymax || bb.y_max || sh) / scale;
+
+    // Add safety margin
+    const margin = Math.min(imgEl.width, imgEl.height) * 0.015;
+    const bx = Math.max(0, xmin - margin);
+    const by = Math.max(0, ymin - margin);
+    const bw = Math.min(imgEl.width - bx, (xmax - xmin) + margin * 2);
+    const bh = Math.min(imgEl.height - by, (ymax - ymin) + margin * 2);
+
+    applyMosaic(ctx, Math.round(bx), Math.round(by), Math.round(bw), Math.round(bh), 16);
   });
 
-  showResult(canvas.toDataURL('image/png'));
+  showResult(fullCanvas.toDataURL('image/png'));
+}
+
+async function loadImg(src) {
+  return new Promise((res, rej) => {
+    const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src;
+  });
 }
 
 // ── 3. AI DESCRIPTION via Gemini ─────────────────────────
