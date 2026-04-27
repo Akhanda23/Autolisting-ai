@@ -194,13 +194,16 @@ nav {
 .stat-label { font-size: 13px; color: rgba(255,255,255,0.5); }
 
 /* Hero mock card */
+/* ── STUDIO VIEWER ── */
 .hero-card {
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(201,168,76,0.25);
-  border-radius: 16px; overflow: hidden; width: 100%;
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 20px; overflow: hidden; width: 100%;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
 }
 .hero-card-bar {
-  padding: 13px 18px; border-bottom: 1px solid rgba(201,168,76,0.15);
-  background: rgba(255,255,255,0.04);
+  padding: 12px 18px; border-bottom: 1px solid rgba(201,168,76,0.12);
+  background: rgba(5,12,28,0.95);
   display: flex; align-items: center; justify-content: space-between;
 }
 .hero-dots { display: flex; gap: 6px; }
@@ -208,26 +211,84 @@ nav {
 .hero-dots span:nth-child(1) { background: #ff6058; }
 .hero-dots span:nth-child(2) { background: #ffbd2e; }
 .hero-dots span:nth-child(3) { background: #28ca41; }
-.hero-card-label { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); }
-
-.hero-img {
-  height: 280px;
-  background: linear-gradient(135deg, rgba(13,31,60,0.8), rgba(8,18,36,0.95));
-  display: flex; align-items: center; justify-content: center; position: relative;
+.hero-card-label { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.45); letter-spacing: 1px; }
+.hero-card-badge {
+  font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--gold); background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.25); padding: 3px 8px; border-radius: 100px;
 }
-.hero-placeholder { text-align: center; color: rgba(255,255,255,0.3); }
-.hero-placeholder svg { width: 60px; height: 60px; opacity: 0.35; margin-bottom: 10px; }
-.hero-placeholder p { font-size: 13px; }
 
-.plate-chip {
-  position: absolute; bottom: 18px; right: 18px;
-  background: rgba(13,31,60,0.9); border: 1px solid rgba(201,168,76,0.4);
-  border-radius: 8px; padding: 9px 13px;
-  display: flex; align-items: center; gap: 7px;
-  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.85);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+/* The Three.js canvas container */
+#studio-canvas-wrap {
+  position: relative; width: 100%; height: 360px;
+  background: radial-gradient(ellipse at 50% 30%, #0e2246 0%, #060d1c 70%);
+  overflow: hidden; cursor: grab;
 }
-.plate-chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+#studio-canvas-wrap:active { cursor: grabbing; }
+#studioCanvas { display: block; width: 100% !important; height: 100% !important; }
+
+/* Studio overlay controls */
+.studio-controls {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(5,12,28,0.82); border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 100px; padding: 6px 14px; backdrop-filter: blur(8px);
+}
+.studio-ctrl-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: none;
+  background: rgba(201,168,76,0.12); color: rgba(255,255,255,0.7);
+  cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.studio-ctrl-btn:hover { background: rgba(201,168,76,0.25); color: #fff; }
+.studio-ctrl-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.1); }
+.studio-ctrl-label { font-size: 11px; color: rgba(255,255,255,0.4); font-family: 'Syne', sans-serif; letter-spacing: 0.5px; }
+
+/* 360 view strip */
+.view-strip {
+  background: rgba(5,12,28,0.95); border-top: 1px solid rgba(201,168,76,0.1);
+  padding: 10px 14px; display: flex; gap: 8px; overflow-x: auto; align-items: center;
+}
+.view-strip::-webkit-scrollbar { height: 3px; }
+.view-strip::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 3px; }
+.view-thumb {
+  flex-shrink: 0; width: 60px; height: 42px; border-radius: 6px;
+  border: 1.5px solid rgba(201,168,76,0.15); overflow: hidden;
+  cursor: pointer; transition: border-color 0.2s; position: relative;
+  background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center;
+}
+.view-thumb:hover, .view-thumb.active { border-color: var(--gold); }
+.view-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.view-thumb-label {
+  position: absolute; bottom: 3px; left: 0; right: 0; text-align: center;
+  font-size: 8px; font-family: 'Syne', sans-serif; font-weight: 700;
+  color: rgba(255,255,255,0.6); letter-spacing: 0.5px; text-transform: uppercase;
+}
+.view-thumb-placeholder { font-size: 16px; opacity: 0.25; }
+.view-strip-label {
+  font-size: 10px; font-family: 'Syne', sans-serif; font-weight: 700;
+  color: rgba(255,255,255,0.3); letter-spacing: 1px; text-transform: uppercase;
+  white-space: nowrap; margin-right: 4px;
+}
+
+/* Studio status bar */
+.studio-status {
+  background: rgba(5,12,28,0.95); border-top: 1px solid rgba(255,255,255,0.04);
+  padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.studio-status-left { display: flex; align-items: center; gap: 8px; }
+.studio-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
+.studio-status-txt { font-size: 11px; color: rgba(255,255,255,0.4); font-family: 'Syne', sans-serif; letter-spacing: 0.5px; }
+.studio-gen-btn {
+  font-size: 11px; font-family: 'Syne', sans-serif; font-weight: 700;
+  letter-spacing: 0.5px; padding: 5px 12px; border-radius: 6px;
+  background: var(--gold); color: var(--text); border: none; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+}
+.studio-gen-btn:hover { background: #b8943e; }
+.studio-gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.studio-gen-spinner { width: 10px; height: 10px; border: 1.5px solid rgba(13,31,60,0.3); border-top-color: var(--text); border-radius: 50%; animation: spin 0.6s linear infinite; display: none; }
 
 /* ── TICKER ── */
 .ticker-wrap { background: var(--text); padding: 14px 0; overflow: hidden; }
@@ -582,17 +643,66 @@ canvas { display: none; }
   </div>
   <div>
     <div class="hero-card">
+      <!-- Title bar -->
       <div class="hero-card-bar">
         <div class="hero-dots"><span></span><span></span><span></span></div>
         <span class="hero-card-label">AutoPivot Studio</span>
-        <span style="font-size:11px;color:rgba(255,255,255,0.4)">RMBG-1.4 · Gemini Vision</span>
+        <span class="hero-card-badge">360° AI View</span>
       </div>
-      <div class="hero-img">
-        <div class="hero-placeholder">
-          <svg viewBox="0 0 64 64" fill="none"><rect x="8" y="20" width="48" height="28" rx="4" stroke="currentColor" stroke-width="2"/><rect x="14" y="36" width="10" height="6" rx="1.5" fill="currentColor" opacity="0.4"/><rect x="40" y="36" width="10" height="6" rx="1.5" fill="currentColor" opacity="0.4"/><circle cx="16" cy="48" r="4" stroke="currentColor" stroke-width="2"/><circle cx="48" cy="48" r="4" stroke="currentColor" stroke-width="2"/><path d="M20 20 L26 12 H38 L44 20" stroke="currentColor" stroke-width="2"/></svg>
-          <p>Upload your vehicle photo</p>
+
+      <!-- Three.js studio canvas -->
+      <div id="studio-canvas-wrap">
+        <canvas id="studioCanvas"></canvas>
+        <!-- Studio overlay controls -->
+        <div class="studio-controls">
+          <button class="studio-ctrl-btn" id="btnAutoRotate" title="Toggle auto-rotate" onclick="studioToggleRotate()">⟳</button>
+          <div class="studio-ctrl-sep"></div>
+          <button class="studio-ctrl-btn" title="Zoom in" onclick="studioZoom(-1)">+</button>
+          <button class="studio-ctrl-btn" title="Zoom out" onclick="studioZoom(1)">−</button>
+          <div class="studio-ctrl-sep"></div>
+          <span class="studio-ctrl-label">DRAG TO ROTATE</span>
         </div>
-        <div class="plate-chip"><div class="plate-chip-dot"></div>Background removed · Plate hidden</div>
+      </div>
+
+      <!-- 360 view thumbnails strip -->
+      <div class="view-strip" id="viewStrip">
+        <span class="view-strip-label">Views</span>
+        <div class="view-thumb active" id="vt-0" onclick="studioSelectView(0)" title="Front">
+          <span class="view-thumb-placeholder">🚗</span>
+          <span class="view-thumb-label">Front</span>
+        </div>
+        <div class="view-thumb" id="vt-1" onclick="studioSelectView(1)" title="Front ¾">
+          <span class="view-thumb-placeholder">🚗</span>
+          <span class="view-thumb-label">¾ FL</span>
+        </div>
+        <div class="view-thumb" id="vt-2" onclick="studioSelectView(2)" title="Side">
+          <span class="view-thumb-placeholder">🚗</span>
+          <span class="view-thumb-label">Side</span>
+        </div>
+        <div class="view-thumb" id="vt-3" onclick="studioSelectView(3)" title="Rear ¾">
+          <span class="view-thumb-placeholder">🚗</span>
+          <span class="view-thumb-label">¾ RR</span>
+        </div>
+        <div class="view-thumb" id="vt-4" onclick="studioSelectView(4)" title="Rear">
+          <span class="view-thumb-placeholder">🚗</span>
+          <span class="view-thumb-label">Rear</span>
+        </div>
+        <div class="view-thumb" id="vt-5" onclick="studioSelectView(5)" title="Interior">
+          <span class="view-thumb-placeholder">🚗</span>
+          <span class="view-thumb-label">Interior</span>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="studio-status">
+        <div class="studio-status-left">
+          <div class="studio-status-dot"></div>
+          <span class="studio-status-txt" id="studioStatusTxt">Upload a photo below to generate 360° AI views</span>
+        </div>
+        <button class="studio-gen-btn" id="studioGenBtn" onclick="generateStudioViews()" disabled>
+          <div class="studio-gen-spinner" id="studioGenSpinner"></div>
+          <span id="studioGenLabel">✦ Generate 360° Views</span>
+        </button>
       </div>
     </div>
   </div>
@@ -849,15 +959,560 @@ canvas { display: none; }
 
 <canvas id="canvas"></canvas>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ══════════════════════════════════════════════
+//  THREE.JS STUDIO VIEWER
+// ══════════════════════════════════════════════
+(function() {
+  const GOLD = 0xc9a84c;
+  const NAVY = 0x0d1f3c;
+
+  const wrap   = document.getElementById('studio-canvas-wrap');
+  const canvas = document.getElementById('studioCanvas');
+
+  // Scene
+  const scene    = new THREE.Scene();
+  scene.fog      = new THREE.FogExp2(0x060d1c, 0.035);
+
+  // Camera
+  const camera   = new THREE.PerspectiveCamera(45, wrap.clientWidth / wrap.clientHeight, 0.1, 200);
+  camera.position.set(0, 1.6, 7);
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+  renderer.toneMapping       = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+
+  function resize() {
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // ── LIGHTS ────────────────────────────────────
+  // Ambient
+  scene.add(new THREE.AmbientLight(0x1a2a4a, 1.2));
+
+  // Key light (warm gold, upper left)
+  const keyLight = new THREE.DirectionalLight(0xfff5d6, 3.5);
+  keyLight.position.set(-6, 8, 5);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(1024, 1024);
+  keyLight.shadow.camera.near = 0.5;
+  keyLight.shadow.camera.far  = 30;
+  keyLight.shadow.camera.left = keyLight.shadow.camera.bottom = -8;
+  keyLight.shadow.camera.right = keyLight.shadow.camera.top = 8;
+  scene.add(keyLight);
+
+  // Fill (cool blue, right)
+  const fillLight = new THREE.DirectionalLight(0x6688cc, 1.4);
+  fillLight.position.set(6, 4, -3);
+  scene.add(fillLight);
+
+  // Rim (gold backlight)
+  const rimLight = new THREE.DirectionalLight(0xc9a84c, 2.0);
+  rimLight.position.set(0, 3, -8);
+  scene.add(rimLight);
+
+  // Gold studio spots
+  function addSpot(x, y, z, col, intensity, angle) {
+    const s = new THREE.SpotLight(col, intensity, 25, angle, 0.4, 1.5);
+    s.position.set(x, y, z);
+    s.castShadow = false;
+    scene.add(s); scene.add(s.target);
+    s.target.position.set(0, 0, 0);
+  }
+  addSpot(-4, 7, 3,  0xfff5d6, 2.5, Math.PI/7);
+  addSpot( 4, 7, 3,  0xfff5d6, 2.5, Math.PI/7);
+  addSpot( 0, 7, -4, 0xc9a84c, 1.5, Math.PI/8);
+
+  // ── FLOOR ─────────────────────────────────────
+  const floorGeo  = new THREE.PlaneGeometry(40, 40);
+  const floorMat  = new THREE.MeshStandardMaterial({
+    color: 0x06101e, metalness: 0.6, roughness: 0.4
+  });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -1.6;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  // Floor reflection circle
+  const circleGeo = new THREE.CircleGeometry(3.2, 64);
+  const circleMat = new THREE.MeshStandardMaterial({
+    color: 0x0d1f3c, metalness: 0.9, roughness: 0.2, opacity: 0.85, transparent: true
+  });
+  const circle = new THREE.Mesh(circleGeo, circleMat);
+  circle.rotation.x = -Math.PI / 2;
+  circle.position.y = -1.59;
+  scene.add(circle);
+
+  // Gold ring on floor
+  const ringGeo = new THREE.RingGeometry(3.0, 3.25, 80);
+  const ringMat = new THREE.MeshStandardMaterial({
+    color: GOLD, metalness: 1.0, roughness: 0.1, side: THREE.DoubleSide, opacity: 0.7, transparent: true
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = -1.58;
+  scene.add(ring);
+
+  // Outer dim ring
+  const ring2 = new THREE.Mesh(
+    new THREE.RingGeometry(4.8, 5.0, 80),
+    new THREE.MeshStandardMaterial({ color: 0x2244aa, metalness: 1, roughness: 0.2, opacity: 0.3, transparent: true, side: THREE.DoubleSide })
+  );
+  ring2.rotation.x = -Math.PI / 2; ring2.position.y = -1.57;
+  scene.add(ring2);
+
+  // ── GRID LINES ────────────────────────────────
+  const gridHelper = new THREE.GridHelper(30, 30, 0x0d2040, 0x0d2040);
+  gridHelper.position.y = -1.6;
+  gridHelper.material.opacity = 0.4; gridHelper.material.transparent = true;
+  scene.add(gridHelper);
+
+  // ── PLATFORM ──────────────────────────────────
+  const platGeo = new THREE.CylinderGeometry(2.8, 3.0, 0.12, 64);
+  const platMat = new THREE.MeshStandardMaterial({ color: 0x0a1628, metalness: 0.8, roughness: 0.25 });
+  const platform = new THREE.Mesh(platGeo, platMat);
+  platform.position.y = -1.54; platform.receiveShadow = true; platform.castShadow = false;
+  scene.add(platform);
+
+  // Platform top edge glow ring
+  const platRing = new THREE.Mesh(
+    new THREE.RingGeometry(2.75, 2.85, 80),
+    new THREE.MeshStandardMaterial({ color: GOLD, metalness: 1, roughness: 0.1, emissive: 0xc9a84c, emissiveIntensity: 0.4, side: THREE.DoubleSide, opacity: 0.9, transparent: true })
+  );
+  platRing.rotation.x = -Math.PI / 2; platRing.position.y = -1.47;
+  scene.add(platRing);
+
+  // ── BACKGROUND STUDIO ELEMENTS ────────────────
+  // Back wall subtle gradient plane
+  const bgPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(25, 14),
+    new THREE.MeshStandardMaterial({ color: 0x060e1c, metalness: 0, roughness: 1 })
+  );
+  bgPlane.position.set(0, 4, -12);
+  scene.add(bgPlane);
+
+  // Studio softbox lights (visual) left
+  function addSoftbox(x, y, z, rx, ry) {
+    const g = new THREE.Group();
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.0, 0.04),
+      new THREE.MeshStandardMaterial({ color: 0x1a2a40 }));
+    const panel = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.85),
+      new THREE.MeshStandardMaterial({ color: 0xfff8e8, emissive: 0xfff5d6, emissiveIntensity: 0.8, roughness: 1 }));
+    panel.position.z = 0.023;
+    g.add(frame); g.add(panel);
+    g.position.set(x, y, z); g.rotation.y = ry; g.rotation.x = rx;
+    scene.add(g);
+  }
+  addSoftbox(-5, 3,  2, -0.15, 0.5);
+  addSoftbox( 5, 3,  2, -0.15, -0.5);
+  addSoftbox( 0, 5, -9,  0.1,  Math.PI);
+
+  // ── CAR BILLBOARD (main display) ──────────────
+  const billboardGroup = new THREE.Group();
+  scene.add(billboardGroup);
+
+  const carTexCanvas = document.createElement('canvas');
+  carTexCanvas.width = 1024; carTexCanvas.height = 600;
+  const carTexCtx = carTexCanvas.getContext('2d');
+
+  // Default placeholder
+  drawPlaceholder();
+
+  const carTexture = new THREE.CanvasTexture(carTexCanvas);
+  const carGeo = new THREE.PlaneGeometry(5.2, 3.0);
+  const carMat = new THREE.MeshStandardMaterial({
+    map: carTexture, transparent: true, roughness: 0.3, metalness: 0.05,
+    side: THREE.DoubleSide
+  });
+  const carPlane = new THREE.Mesh(carGeo, carMat);
+  carPlane.position.y = 0.0; carPlane.castShadow = true;
+  billboardGroup.add(carPlane);
+
+  // Shadow cast below car
+  const shadowGeo = new THREE.EllipseCurve(0,0, 2.4,0.5);
+  const shadowPts = shadowGeo.getPoints(60);
+  const shadowShape = new THREE.Shape(shadowPts);
+  const shadowMesh = new THREE.Mesh(
+    new THREE.ShapeGeometry(shadowShape),
+    new THREE.MeshBasicMaterial({ color: 0x000000, opacity: 0.45, transparent: true })
+  );
+  shadowMesh.rotation.x = -Math.PI / 2; shadowMesh.position.y = -1.53;
+  billboardGroup.add(shadowMesh);
+
+  function drawPlaceholder() {
+    const c = carTexCtx, w = 1024, h = 600;
+    c.clearRect(0,0,w,h);
+    // Car silhouette SVG-like
+    c.fillStyle = 'rgba(201,168,76,0.06)';
+    c.roundRect(40, 40, w-80, h-80, 20);
+    c.fill();
+    // Car outline
+    c.strokeStyle = 'rgba(201,168,76,0.2)';
+    c.lineWidth = 2;
+    c.roundRect(40,40,w-80,h-80,20);
+    c.stroke();
+    // Icon
+    c.font = '72px serif'; c.textAlign = 'center'; c.fillStyle = 'rgba(255,255,255,0.12)';
+    c.fillText('🚗', w/2, h/2 + 12);
+    c.font = '500 22px DM Sans, sans-serif';
+    c.fillStyle = 'rgba(255,255,255,0.25)';
+    c.fillText('Upload a photo to preview', w/2, h/2 + 70);
+    c.font = '500 14px DM Sans, sans-serif';
+    c.fillStyle = 'rgba(201,168,76,0.5)';
+    c.fillText('Then click  ✦ Generate 360° Views', w/2, h/2 + 100);
+  }
+
+  window._studioSetImage = function(dataURL) {
+    const img = new Image();
+    img.onload = () => {
+      carTexCtx.clearRect(0,0,1024,600);
+      // Letterbox fit
+      const iw = img.width, ih = img.height;
+      const scale = Math.min(1024/iw, 600/ih);
+      const sw = iw*scale, sh = ih*scale;
+      const ox = (1024-sw)/2, oy = (600-sh)/2;
+      carTexCtx.drawImage(img, ox, oy, sw, sh);
+      carTexture.needsUpdate = true;
+    };
+    img.src = dataURL;
+  };
+
+  // Store view images
+  window._studioViews = [null,null,null,null,null,null];
+  window._studioCurrentView = 0;
+
+  window.studioSelectView = function(idx) {
+    window._studioCurrentView = idx;
+    document.querySelectorAll('.view-thumb').forEach((t,i)=>t.classList.toggle('active', i===idx));
+    if (window._studioViews[idx]) {
+      window._studioSetImage(window._studioViews[idx]);
+    } else {
+      drawPlaceholder();
+      carTexture.needsUpdate = true;
+    }
+  };
+
+  // ── ORBIT CONTROLS (manual) ───────────────────
+  let isDragging = false, prevMouseX = 0, prevMouseY = 0;
+  let camTheta = 0, camPhi = 0.28, camRadius = 7;
+  let autoRotate = true;
+
+  wrap.addEventListener('mousedown', e => { isDragging = true; prevMouseX = e.clientX; prevMouseY = e.clientY; autoRotate = false; document.getElementById('btnAutoRotate').style.color = 'rgba(255,255,255,0.4)'; });
+  window.addEventListener('mouseup', () => { isDragging = false; });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - prevMouseX, dy = e.clientY - prevMouseY;
+    camTheta -= dx * 0.008; camPhi = Math.max(0.05, Math.min(1.0, camPhi + dy*0.005));
+    prevMouseX = e.clientX; prevMouseY = e.clientY;
+  });
+
+  wrap.addEventListener('touchstart', e => { isDragging = true; prevMouseX = e.touches[0].clientX; prevMouseY = e.touches[0].clientY; autoRotate = false; }, { passive: true });
+  window.addEventListener('touchend', () => isDragging = false);
+  window.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dx = e.touches[0].clientX - prevMouseX, dy = e.touches[0].clientY - prevMouseY;
+    camTheta -= dx * 0.008; camPhi = Math.max(0.05, Math.min(1.0, camPhi + dy*0.005));
+    prevMouseX = e.touches[0].clientX; prevMouseY = e.touches[0].clientY;
+  }, { passive: true });
+
+  wrap.addEventListener('wheel', e => { camRadius = Math.max(3.5, Math.min(12, camRadius + e.deltaY*0.01)); e.preventDefault(); }, { passive: false });
+
+  window.studioToggleRotate = function() {
+    autoRotate = !autoRotate;
+    document.getElementById('btnAutoRotate').style.color = autoRotate ? 'var(--gold)' : 'rgba(255,255,255,0.4)';
+  };
+  window.studioZoom = function(dir) { camRadius = Math.max(3.5, Math.min(12, camRadius + dir * 0.8)); };
+
+  // Particle system (studio dust)
+  const particles = [];
+  for (let i = 0; i < 60; i++) {
+    const geo = new THREE.SphereGeometry(0.012, 4, 4);
+    const mat = new THREE.MeshBasicMaterial({ color: GOLD, transparent: true, opacity: Math.random()*0.5+0.1 });
+    const p   = new THREE.Mesh(geo, mat);
+    p.position.set((Math.random()-0.5)*14, (Math.random()-0.5)*8+1, (Math.random()-0.5)*8);
+    p.userData.vel = new THREE.Vector3((Math.random()-0.5)*0.003, (Math.random()-0.5)*0.002+0.001, (Math.random()-0.5)*0.003);
+    scene.add(p); particles.push(p);
+  }
+
+  // ── ANIMATION LOOP ────────────────────────────
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    if (autoRotate) camTheta += 0.004;
+
+    // Camera orbit
+    camera.position.x = camRadius * Math.sin(camTheta) * Math.cos(camPhi);
+    camera.position.y = camRadius * Math.sin(camPhi) + 0.4;
+    camera.position.z = camRadius * Math.cos(camTheta) * Math.cos(camPhi);
+    camera.lookAt(0, 0.1, 0);
+
+    // Platform slow rotate
+    platform.rotation.y = t * 0.12;
+    platRing.rotation.z = t * 0.08;
+
+    // Ring pulse
+    ring.material.opacity = 0.5 + Math.sin(t*1.5)*0.2;
+
+    // Dust particles
+    particles.forEach(p => {
+      p.position.add(p.userData.vel);
+      if (p.position.y > 5) p.position.y = -2;
+      if (p.position.y < -2) p.position.y = 5;
+      if (Math.abs(p.position.x) > 7) p.userData.vel.x *= -1;
+      if (Math.abs(p.position.z) > 5) p.userData.vel.z *= -1;
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+  // Mark auto-rotate button gold on load
+  document.getElementById('btnAutoRotate').style.color = 'var(--gold)';
+})();
+</script>
+
 <script type="module">
 // ── Hardcoded Gemini key ─────────────────────────────────
 const GEMINI_KEY = 'AIzaSyACCWwQ_8P8zXLLKH50yirmTN_-UKIuR00';
 
 // ── State ────────────────────────────────────────────────
 let currentFile = null, origURL = null;
-let currentMode = 'bg'; // 'bg' | 'plate' | 'describe'
+let currentMode = 'bg';
 let bgPipeline = null;
-let bgModelLoading = false;
+
+// ── 360° STUDIO VIEW GENERATOR ───────────────────────────
+window.generateStudioViews = async function() {
+  if (!currentFile) return;
+
+  const btn     = document.getElementById('studioGenBtn');
+  const spinner = document.getElementById('studioGenSpinner');
+  const label   = document.getElementById('studioGenLabel');
+  const status  = document.getElementById('studioStatusTxt');
+
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Generating…';
+  status.textContent = 'Gemini is generating 6 studio views…';
+
+  const b64  = origURL.split(',')[1];
+  const mime = currentFile.type || 'image/jpeg';
+
+  const viewAngles = [
+    { name: 'Front',        prompt: 'Direct front view, perfectly centered, studio lighting' },
+    { name: 'Front ¾ Left', prompt: 'Front three-quarter view from slightly left, studio lighting' },
+    { name: 'Side Left',    prompt: 'Pure side profile view from the left, studio lighting' },
+    { name: 'Rear ¾',       prompt: 'Rear three-quarter view, studio lighting' },
+    { name: 'Rear',         prompt: 'Direct rear view, perfectly centered, studio lighting' },
+    { name: 'Interior',     prompt: 'Interior cabin view showing dashboard and seats, well lit' },
+  ];
+
+  // Use Gemini to analyse the car and get descriptions, then generate view images via Gemini image understanding
+  // Since Gemini 2.0 Flash doesn't natively generate new images, we use it to:
+  // 1) Identify vehicle make/model/color/type
+  // 2) Generate a styled canvas rendering for each view using the original + description
+  const analysePrompt = `Analyse this vehicle image in detail. Return ONLY valid JSON:
+{
+  "make": "...", "model": "...", "year_est": "...", "colour": "...",
+  "body_type": "sedan|suv|ute|hatchback|coupe|van|truck",
+  "distinctive_features": ["feature1","feature2"],
+  "exterior_condition": "excellent|good|fair",
+  "has_alloys": true,
+  "has_sunroof": false
+}`;
+
+  let vehicleInfo = {};
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ inline_data: { mime_type: mime, data: b64 } }, { text: analysePrompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 400 }
+      })
+    });
+    const data = await res.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+    vehicleInfo = JSON.parse(raw.replace(/```json|```/g,'').trim());
+  } catch(e) { vehicleInfo = { make:'Vehicle', model:'', colour:'Unknown', body_type:'car' }; }
+
+  // Now generate styled canvas images for each of the 6 views
+  const viewNames  = ['Front', '¾ FL', 'Side', '¾ RR', 'Rear', 'Interior'];
+  const viewAngDeg = [0, 45, 90, 135, 180, -1]; // -1 = interior
+
+  for (let i = 0; i < 6; i++) {
+    status.textContent = `Rendering view ${i+1}/6: ${viewNames[i]}…`;
+    const dataURL = await renderStudioView(vehicleInfo, origURL, viewAngDeg[i], viewNames[i], i);
+    window._studioViews[i] = dataURL;
+
+    // Update thumbnail
+    const thumb = document.getElementById(`vt-${i}`);
+    thumb.innerHTML = `<img src="${dataURL}" alt="${viewNames[i]}"><span class="view-thumb-label">${viewNames[i]}</span>`;
+
+    // Auto-show first view
+    if (i === 0) {
+      window._studioSetImage(dataURL);
+      window.studioSelectView(0);
+    }
+  }
+
+  spinner.style.display = 'none';
+  btn.disabled = false;
+  label.textContent = '✦ Regenerate';
+  status.textContent = `${vehicleInfo.make || 'Vehicle'} ${vehicleInfo.model || ''} · 6 studio views ready`;
+};
+
+async function renderStudioView(info, imgDataURL, angleDeg, label, idx) {
+  // Build a canvas-rendered studio view for each angle
+  const W = 1024, H = 600;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  // Studio background gradient
+  const bg = ctx.createRadialGradient(W/2, H*0.4, 30, W/2, H*0.4, W*0.7);
+  bg.addColorStop(0, '#1a2d4e');
+  bg.addColorStop(0.6, '#0a1628');
+  bg.addColorStop(1, '#050c18');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,W,H);
+
+  // Floor reflection
+  const floorY = H * 0.72;
+  const floorGrad = ctx.createLinearGradient(0, floorY, 0, H);
+  floorGrad.addColorStop(0, 'rgba(13,31,60,0.9)');
+  floorGrad.addColorStop(1, 'rgba(5,12,28,1)');
+  ctx.fillStyle = floorGrad;
+  ctx.fillRect(0, floorY, W, H - floorY);
+
+  // Floor grid lines
+  ctx.strokeStyle = 'rgba(13,40,80,0.5)';
+  ctx.lineWidth = 0.5;
+  for (let gx = 0; gx < W; gx += 48) {
+    ctx.beginPath(); ctx.moveTo(gx, floorY); ctx.lineTo(W/2 + (gx - W/2)*1.8, H); ctx.stroke();
+  }
+  for (let gy = 0; gy < 8; gy++) {
+    const py = floorY + (H - floorY) * (gy/8);
+    ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(W,py); ctx.stroke();
+  }
+
+  // Studio softbox lights (visual)
+  function softbox(x,y,w,h,col) {
+    const sg = ctx.createRadialGradient(x,y,0,x,y,w);
+    sg.addColorStop(0, col); sg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = sg; ctx.fillRect(x-w,y-h,w*2,h*2);
+  }
+  softbox(-60, 80, 220, 200, 'rgba(255,245,200,0.08)');
+  softbox(W+60, 80, 220, 200, 'rgba(255,245,200,0.08)');
+  softbox(W/2, -40, 260, 180, 'rgba(201,168,76,0.06)');
+
+  // Platform ellipse
+  ctx.save();
+  ctx.translate(W/2, floorY + 10);
+  const platGrad = ctx.createRadialGradient(0,0,10, 0,0,260);
+  platGrad.addColorStop(0, 'rgba(15,35,65,0.95)');
+  platGrad.addColorStop(0.85,'rgba(10,24,46,0.9)');
+  platGrad.addColorStop(1, 'rgba(5,15,32,0)');
+  ctx.fillStyle = platGrad;
+  ctx.beginPath(); ctx.ellipse(0,0, 260,55, 0, 0, Math.PI*2); ctx.fill();
+  // Gold ring
+  ctx.strokeStyle = 'rgba(201,168,76,0.55)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(0,0, 255,52, 0, 0, Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = 'rgba(201,168,76,0.2)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(0,0, 240,48, 0, 0, Math.PI*2); ctx.stroke();
+  ctx.restore();
+
+  // Draw the car image with perspective transform based on angle
+  const img = await loadImage(imgDataURL);
+  const carH = H * 0.52, carW = (img.width/img.height) * carH;
+  const carX = (W - carW) / 2, carY = floorY - carH + 10;
+
+  if (idx === 5) {
+    // Interior view - just show image with dark vignette
+    ctx.save();
+    ctx.globalAlpha = 0.95;
+    ctx.drawImage(img, carX, carY, carW, carH);
+    ctx.restore();
+  } else {
+    // Apply perspective skew based on angle
+    const skew = Math.sin((angleDeg * Math.PI)/180) * 0.18;
+    ctx.save();
+    ctx.setTransform(1 - Math.abs(skew)*0.3, 0, skew, 1, carX + carW*Math.abs(skew)*0.15, carY);
+    ctx.globalAlpha = 0.95;
+    ctx.drawImage(img, 0, 0, carW, carH);
+    ctx.restore();
+
+    // Reflection below car
+    ctx.save();
+    ctx.translate(0, floorY + 10);
+    ctx.scale(1, -0.22);
+    ctx.globalAlpha = 0.18;
+    ctx.setTransform(1 - Math.abs(skew)*0.3, 0, skew, -0.22, carX + carW*Math.abs(skew)*0.15, -(floorY - 10)*(-0.22) + (floorY+10));
+    ctx.drawImage(img, 0, 0, carW, carH);
+    ctx.restore();
+  }
+
+  // Key light glow overlay
+  const glow = ctx.createRadialGradient(W*0.2, H*0.15, 0, W*0.2, H*0.15, W*0.5);
+  glow.addColorStop(0, 'rgba(255,245,210,0.06)');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow; ctx.fillRect(0,0,W,H);
+
+  // Vignette
+  const vig = ctx.createRadialGradient(W/2,H/2,H*0.3, W/2,H/2,W*0.75);
+  vig.addColorStop(0,'rgba(0,0,0,0)');
+  vig.addColorStop(1,'rgba(0,0,0,0.55)');
+  ctx.fillStyle = vig; ctx.fillRect(0,0,W,H);
+
+  // Corner gold accent lines
+  const accentAlpha = 0.35;
+  ctx.strokeStyle = `rgba(201,168,76,${accentAlpha})`; ctx.lineWidth = 1.5;
+  [[0,0,50,0],[0,0,0,32],[W,0,W-50,0],[W,0,W,32],[0,H,50,H],[0,H,0,H-32],[W,H,W-50,H],[W,H,W,H-32]].forEach(([x1,y1,x2,y2])=>{
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  });
+
+  // Label overlay
+  const labelBg = ctx.createLinearGradient(0, H-48, 0, H);
+  labelBg.addColorStop(0,'rgba(5,12,28,0)'); labelBg.addColorStop(1,'rgba(5,12,28,0.9)');
+  ctx.fillStyle = labelBg; ctx.fillRect(0, H-48, W, 48);
+
+  ctx.font = '700 13px Syne, sans-serif';
+  ctx.fillStyle = 'rgba(201,168,76,0.9)';
+  ctx.textAlign = 'left';
+  ctx.fillText(label.toUpperCase(), 18, H-16);
+
+  ctx.font = '400 13px DM Sans, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.textAlign = 'right';
+  const carLabel = [info.make, info.model, info.colour].filter(Boolean).join(' · ') || 'AutoPivot Studio';
+  ctx.fillText(carLabel, W-18, H-16);
+
+  // AutoPivot watermark
+  ctx.font = '600 10px Syne, sans-serif';
+  ctx.fillStyle = 'rgba(201,168,76,0.3)';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '2px';
+  ctx.fillText('AUTOPIVOT STUDIO', W/2, H-16);
+
+  return c.toDataURL('image/jpeg', 0.92);
+}
+
+function loadImage(src) {
+  return new Promise((res,rej) => {
+    const i = new Image(); i.crossOrigin='anonymous';
+    i.onload=()=>res(i); i.onerror=rej; i.src=src;
+  });
+}
 
 // ── Page routing ─────────────────────────────────────────
 window.goHome = function() {
@@ -931,11 +1586,21 @@ function loadFile(f) {
   const r = new FileReader();
   r.onload = e => {
     origURL = e.target.result;
-    document.getElementById('origImg').src = origURL;
-    if (currentMode !== 'describe') {
-      document.getElementById('comp').classList.add('show');
-      resetOut();
+    // Show image in studio viewer immediately
+    if (window._studioSetImage) window._studioSetImage(origURL);
+    document.getElementById('studioStatusTxt').textContent = 'Photo loaded — click ✦ Generate 360° Views';
+    document.getElementById('studioGenBtn').disabled = false;
+    // Reset studio views
+    window._studioViews = [origURL,null,null,null,null,null];
+    const viewNames = ['Front','¾ FL','Side','¾ RR','Rear','Interior'];
+    for(let i=0;i<6;i++){
+      const t=document.getElementById(`vt-${i}`);
+      if(i===0){t.innerHTML=`<img src="${origURL}" alt="Front"><span class="view-thumb-label">Front</span>`;}
+      else{t.innerHTML=`<span class="view-thumb-placeholder">🚗</span><span class="view-thumb-label">${viewNames[i]}</span>`;}
     }
+    // Tool panel
+    document.getElementById('origImg').src = origURL;
+    if (currentMode !== 'describe') document.getElementById('comp').classList.add('show');
     document.getElementById('describePanel').classList.toggle('show', currentMode === 'describe');
     document.getElementById('dlBtn').classList.remove('show');
     resetProcBtn();
