@@ -1,0 +1,10 @@
+rembg
+pillow
+boto3
+pika
+requests
+python-dotenv
+sqlalchemy
+psycopg2-binary
+numpy
+opencv-python
